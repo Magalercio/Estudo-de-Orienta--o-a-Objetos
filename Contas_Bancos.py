@@ -12,8 +12,7 @@
 from datetime import datetime
 import pytz
 import time
-import random
-
+from random import randint
 
 
 class ContaCorrente:
@@ -26,10 +25,10 @@ class ContaCorrente:
         agencia(int): agência responsável pela conta do cliente.
         num_conta(int): Número da conta do cliente.
         saldo(flt): saldo disponível na conta do cliente.
-        limite(flt): limite do cheque especial da conta do cliente.
+        _limite(flt): _limite do cheque especial da conta do cliente.
         transações(list): Histórico de transações da conta do cliente, com descrição de tipo, quantidade, data e hora.
+        cartões(list): Lista dos cartões disponíveis para essa conta. Vinculado com a Classe CartoesCredito.
     """
-   #todas_contas = [(100000000,'conta_teste', '000.000.000-00','Conta de Teste', 1234)]
 
     @staticmethod
     def _data_hora():
@@ -38,13 +37,14 @@ class ContaCorrente:
         return horario_BR.strftime("%d/%m/%Y %H:%M:%S")
 
     def __init__(self, nome, cpf, agencia,num_conta):
-        self._nome = nome
+        self.nome = nome
         self._cpf = cpf
         self._saldo = 0.00
         self._limite = None
-        self._agencia = agencia
-        self._num_conta = num_conta
+        self.agencia = agencia
+        self.num_conta = num_conta
         self._transacoes =[]
+        self.cartoes = []
 
 
 
@@ -77,7 +77,7 @@ class ContaCorrente:
 
     def sacar_dinheiro(self, valor):
         """
-            Remove valor da conta do cliente, através de um saque, caso haja saldo limite suficiente para saque.
+            Remove valor da conta do cliente, através de um saque, caso haja saldo _limite suficiente para saque.
             Adciona essa transação no atributo transações da conta do cliente.
         :param valor: Valor a ser sacado da conta do cliente.
         """
@@ -92,10 +92,10 @@ class ContaCorrente:
 
     def consulta_limite_especial(self):
         """
-           Consulta qual o limite do cheque especial da conta do cliente.
+           Consulta qual o _limite do cheque especial da conta do cliente.
            Não há parâmetros necessários.
         """
-        print(f'Seu limite de cheque especial é de R${self._limite_conta():,.2f}')
+        print(f'Seu _limite de cheque especial é de R${self._limite_conta():,.2f}')
 
     def consulta_historico_transacoes(self):
         """
@@ -103,14 +103,14 @@ class ContaCorrente:
             Não há parâmetros necessários.
         """
         print('-' * 70)
-        print(f'Histórico de Transações de {self._nome}:')
+        print(f'Histórico de Transações de {self.nome}:')
         for transacao in self._transacoes:
             print(transacao)
         print('-'*70)
 
     def transferir(self, valor, conta_destino):
         """
-            Executa uma transferência de uma conta para a outra, caso haja saldo limite suficiente para a transferência.
+            Executa uma transferência de uma conta para a outra, caso haja saldo _limite suficiente para a transferência.
             Remove saldo da conta origem, adciona saldo na conta destino.
             Adciona essa transação no atributo transações das contas dos clientes, tanto de Origem quanto Destino.
         :param valor: valor da transferência
@@ -121,71 +121,54 @@ class ContaCorrente:
             print('Saldo insuficiente para essa transferência.')
             self.consultar_saldo()
         else:
-            print(f'Transferencia para {conta_destino._nome} concluída com sucesso no valor de R${valor:,.2f}')
+            print(f'Transferencia para {conta_destino.nome} concluída com sucesso no valor de R${valor:,.2f}')
             self._saldo -= valor
         self._transacoes.append(('Transferência', -valor, f'Saldo R${self._saldo}', ContaCorrente._data_hora()))
         conta_destino._saldo += valor
         conta_destino._transacoes.append(('Transferência', valor, f'Saldo R${conta_destino._saldo}', ContaCorrente._data_hora()))
 
+class CartaoCredito:
+    """
+       Cria um objeto cartão de crédito para gerenciar os cartões dos clientes.
 
-# Programa Teste
-#Criando conta
-#Funcao de criar conta que nao deu certo por enquanto
-"""def criar_conta():
+       Atributos:
+           numero (int): numero do cartão.
+           titular(str): Nome do titular do cartão.
+           validade(str): Data de validade do cartão.
+           cod_seguranca(str): código de segurança do cartão.
+           limite(flt): limite de crédito do cartão.
+           senha(str): Senha numérica do cartão.
+           conta_corrente(int): Numero da conta corrente relacionada, ligada diretamente com a Classe ContaCorrente.
+       """
 
-    nome1 = input('Digite o nome do cliente:')
-    cpf1= input('Digite o cpf do cliente com pontos e traços, conforme aparece no documento:')
-    agencia1 = int(input('Digite em qual agencia a conta será aberta:'))
-    alias1 = input('Digite um apelido para a conta:')
-    test_conta= True
-    while test_conta==True:
-        num_conta1 = int(random.randint(100000000,200000000))
-        for item in ContaCorrente.todas_contas:
-            if num_conta1 in ContaCorrente.todas_contas[0]:
-                test_conta=True
-            else:
-                test_conta=False
-    # todas_contas=[(num_conta1,alias1, cpf1, nome1, agencia1)]
-    ContaCorrente.todas_contas.append((num_conta1,alias1, cpf1, nome1, agencia1))
-    code = f"{alias1} = ContaCorrente('{nome1}', '{cpf1}', {agencia1}, {num_conta1})"
-    print(code)
-    exec(code)"""
-conta_Magal = ContaCorrente('Magalercio', '123.456.789-00', 1234, 403350702)
-conta_Michelle = ContaCorrente ('Michelle', '789.654.013-01', 1234, 564832116)
-#depositando
-conta_Magal.depositar(1000)
-time.sleep(3)
-#sacando
-conta_Magal.sacar_dinheiro(1200)
-#consultando Limite
-conta_Magal.consulta_limite_especial()
-time.sleep(1)
-conta_Magal.transferir(500, conta_Michelle)
+    @staticmethod
+    def _data_hora():
+        fuso_BR = pytz.timezone('Brazil/East')
+        horario_BR = datetime.now(fuso_BR)
+        return horario_BR
 
-conta_Magal.consulta_historico_transacoes()
-conta_Michelle.consulta_historico_transacoes()
+    def __init__(self,titular,conta_corrente):
+        self._numero = randint (1000000000000000, 9999999999999999)
+        self.titular = titular
+        self._validade = '{}/{}'.format(CartaoCredito._data_hora().month, CartaoCredito._data_hora().year + 4)
+        self._cod_seguranca = '{}{}{}'.format(randint(0, 9), randint(0, 9), randint(0, 9))
+        self._limite = 1000
+        self._senha = "1234"
+        self.conta_corrente = conta_corrente
+        conta_corrente.cartoes.append(self)
 
-#help(ContaCorrente)
+    @property
+    def senha(self):
+        return self._senha
 
-"""criar_conta()
-
-criar_conta()
-
-
-time.sleep(1)
-#depositando
-conta_Magal.depositar(1000)
-time.sleep(3)
-#sacando
-conta_Magal.sacar_dinheiro(1200)
-#consultando Limite
-conta_Magal.consulta_limite_especial()
-time.sleep(1)
-conta_Magal.transferir(500, conta_Michelle)
-
-conta_Magal.consulta_historico_transacoes()
-conta_Michelle.consulta_historico_transacoes()
+    @senha.setter
+    def senha(self, valor):
+        if len(valor) == 4 and valor.isnumeric():
+            self._senha = valor
+            print('Senha alterada com sucesso.')
+        else:
+            print("Nova senha inválida!")
 
 
 
-print(ContaCorrente.todas_contas)"""
+
