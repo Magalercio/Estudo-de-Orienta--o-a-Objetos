@@ -52,3 +52,4 @@ print(tv_sala.canal)
 print(tv_quarto.canal)
 print(tv_sala.tamanho)
 print(tv_quarto.tamanho)
+
