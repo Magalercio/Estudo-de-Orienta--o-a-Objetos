@@ -32,6 +32,10 @@ class ContaCorrente:
 
     @staticmethod
     def _data_hora():
+        """
+        Função auxiliar que passa data e hora com fuso horário brasileiro.
+        :return: Retorno de data e hora atual.
+        """
         fuso_BR = pytz.timezone('Brazil/East')
         horario_BR = datetime.now (fuso_BR)
         return horario_BR.strftime("%d/%m/%Y %H:%M:%S")
@@ -143,6 +147,10 @@ class CartaoCredito:
 
     @staticmethod
     def _data_hora():
+        """
+        Função auxiliar que passa data e hora com fuso horário brasileiro.
+        :return: Retorno de data e hora não formatado..
+        """
         fuso_BR = pytz.timezone('Brazil/East')
         horario_BR = datetime.now(fuso_BR)
         return horario_BR
@@ -159,16 +167,23 @@ class CartaoCredito:
 
     @property
     def senha(self):
+        """
+        Getter da senha do cartão de crédito.
+        :return: senha.
+        """
         return self._senha
 
     @senha.setter
     def senha(self, valor):
+        """
+        Setter da senha do cartão de crédito.
+        :param valor: nova senha do cartão de crédito.
+        :return: nova senha caso esteja dentro do parametro de quatro digitos numéricos.
+        """
         if len(valor) == 4 and valor.isnumeric():
             self._senha = valor
             print('Senha alterada com sucesso.')
         else:
             print("Nova senha inválida!")
-
-
 
 
