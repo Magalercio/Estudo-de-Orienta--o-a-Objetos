@@ -146,3 +146,7 @@ class AgenciaPremium(Agencia):
         else:
             print('O cliente não tem o patrimônio necessário para entrar na agência Premium')
 
+
+if __name__ == '__main__':
+    #essa linha de comando acima faz com oq esteja aqui identado, no caso as linhas de testes, não seja rodado quando o
+    #arquivo for importado para o main.py. Para caso esqueça de apagar os testes.
